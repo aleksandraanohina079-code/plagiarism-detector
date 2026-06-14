@@ -1,0 +1,147 @@
+{% extends 'analyzer/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center animate">
+    <div class="col-lg-10">
+        <!-- Уникальность -->
+        <div class="glass-card p-4 mb-4 text-center">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <canvas id="uniquenessChart" width="200" height="200"></canvas>
+                </div>
+                <div class="col-md-6">
+                    <div class="display-1 fw-bold 
+                        {% if uniqueness >= 80 %}text-success
+                        {% elif uniqueness >= 50 %}text-warning
+                        {% else %}text-danger{% endif %}">
+                        {{ uniqueness }}%
+                    </div>
+                    <p class="text-muted">Уникальность текста</p>
+                    {% if filename %}
+                        <p class="small text-muted"><i class="fas fa-file me-1"></i>Файл: {{ filename }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- АНАЛИЗ ТОНАЛЬНОСТИ -->
+        <div class="glass-card p-4 mb-4">
+            <h4 class="mb-3"><i class="fas fa-smile me-2" style="color: #667eea;"></i>Анализ тональности</h4>
+            <div class="text-center">
+                <div style="font-size: 4rem;">{{ sentiment.emoji }}</div>
+                <h3 class="mt-2" style="color: {{ sentiment.color }};">{{ sentiment.label|capfirst }}</h3>
+                <p class="text-muted">{{ sentiment.message }}</p>
+            </div>
+        </div>
+        
+        <!-- ОБЛАКО СЛОВ -->
+        {% if wordcloud_img %}
+        <div class="glass-card p-4 mb-4">
+            <h4 class="mb-3"><i class="fas fa-cloud me-2" style="color: #667eea;"></i>Облако слов</h4>
+            <div class="text-center">
+                <img src="{{ wordcloud_img }}" alt="Word Cloud" class="img-fluid rounded">
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Статистика текста -->
+        <div class="glass-card p-4 mb-4">
+            <h4 class="mb-3"><i class="fas fa-chart-bar me-2" style="color: #667eea;"></i>Статистика текста</h4>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-number">{{ stats.chars_total }}</div>
+                        <div class="small text-muted">Всего символов</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-number">{{ stats.chars_no_spaces }}</div>
+                        <div class="small text-muted">Без пробелов</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-number">{{ stats.words_count }}</div>
+                        <div class="small text-muted">Слов</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="stat-number">{{ stats.sentences_count }}</div>
+                        <div class="small text-muted">Предложений</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ключевые слова -->
+        {% if keywords %}
+        <div class="glass-card p-4 mb-4">
+            <h4 class="mb-3"><i class="fas fa-tags me-2" style="color: #667eea;"></i>Ключевые слова</h4>
+            <div>
+                {% for kw in keywords %}
+                    <span class="keyword-badge">{{ kw }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Текст -->
+        <div class="glass-card p-4 mb-4">
+            <h4><i class="fas fa-file-alt me-2"></i>Проверенный текст</h4>
+            <div class="p-3 bg-light rounded" style="white-space: pre-wrap; max-height: 300px; overflow-y: auto;">{{ original_text|linebreaksbr }}</div>
+        </div>
+        
+        <!-- Заимствования -->
+        <div class="glass-card p-4 mb-4">
+            <h4><i class="fas fa-search me-2"></i>Найденные заимствования ({{ results|length }})</h4>
+            {% if results %}
+                {% for r in results %}
+                    <div class="result-card {% if r.similarity > 70 %}similarity-high
+                                          {% elif r.similarity > 40 %}similarity-medium
+                                          {% else %}similarity-low{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5><i class="fas fa-book me-2"></i>{{ r.title }}</h5>
+                            <span class="badge 
+                                {% if r.similarity > 70 %}bg-danger
+                                {% elif r.similarity > 40 %}bg-warning
+                                {% else %}bg-success{% endif %}">
+                                {{ r.similarity }}%
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                    <p>Совпадений не найдено! Текст уникален.</p>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/" class="btn-gradient">Проверить другой текст</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const uniqueness = {{ uniqueness }};
+    const plagiarism = 100 - uniqueness;
+    
+    const ctx = document.getElementById('uniquenessChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Уникально', 'Заимствования'],
+            datasets: [{
+                data: [uniqueness, plagiarism],
+                backgroundColor: ['#28a745', '#dc3545'],
+                borderWidth: 0
+            }]
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'analyzer/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center animate">
+    <div class="col-lg-10">
+        <div class="glass-card p-4">
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none">🏠 Главная</a></li>
+                    <li class="breadcrumb-item"><a href="/core/" class="text-decoration-none">📚 Библиотека</a></li>
+                    <li class="breadcrumb-item active">{{ doc.title }}</li>
+                </ol>
+            </nav>
+            
+            <div class="text-center mb-4">
+                <div class="book-icon-large mx-auto mb-3">
+                    <i class="fas fa-book-open fa-3x" style="color: #667eea;"></i>
+                </div>
+                <h1 class="fw-bold">{{ doc.title }}</h1>
+                <div class="mt-2">
+                    <span class="badge bg-primary">
+                        <i class="fas fa-calendar-alt me-1"></i>
+                        Добавлено: {{ doc.created_at|date:"d.m.Y H:i" }}
+                    </span>
+                    <span class="badge bg-secondary ms-2">
+                        <i class="fas fa-hashtag me-1"></i>
+                        ID: {{ doc.id }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="document-content">
+                <h4 class="mb-3">
+                    <i class="fas fa-feather-alt me-2" style="color: #667eea;"></i>
+                    Текст произведения:
+                </h4>
+                <div class="p-4 bg-light rounded" style="white-space: pre-wrap; font-family: 'Georgia', serif; font-size: 1.05rem; line-height: 1.7;">
+                    {{ doc.content|linebreaksbr }}
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <a href="/" class="btn-gradient me-2">
+                    <i class="fas fa-search me-2"></i>Проверить текст
+                </a>
+                <a href="/core/" class="btn btn-outline-secondary rounded-pill">
+                    <i class="fas fa-arrow-left me-2"></i>Вернуться к списку
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .book-icon-large {
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(102, 126, 234, 0.1);
+        border-radius: 20px;
+        margin: 0 auto;
+    }
+    
+    .document-content {
+        max-height: 550px;
+        overflow-y: auto;
+    }
+    
+    .document-content::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    .document-content::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    .document-content::-webkit-scrollbar-thumb {
+        background: #667eea;
+        border-radius: 10px;
+    }
+    
+    .breadcrumb {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 12px 20px;
+        border-radius: 40px;
+    }
+</style>
+{% endblock %}
